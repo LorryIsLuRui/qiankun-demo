@@ -1,13 +1,11 @@
 // 项目入口文件
 
-import './public-path';
-import React from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.jsx';
 import './bootstrap';
 
 
-const render = (props) => {
+const render = () => {
   const root = createRoot(document.querySelector('#root'));
   root.render(<App />);
 }

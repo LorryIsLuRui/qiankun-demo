@@ -1,7 +1,9 @@
-// 子应用shop
+// 子应用utils
 import {createRoot} from 'react-dom/client';
-import App from './main.jsx';
 
+const App = () => (
+  <></>
+);
 
 let root = null;
 
@@ -14,16 +16,16 @@ function render(props) {
 
 // 命名导出生命周期（关键）
 export async function bootstrap() {
-  console.log('shop app bootstrap');
+  console.log('utils app bootstrap');
 }
 
 export async function mount(props) {
-  console.log('shop app mount');
+  console.log('utils app mount');
   render(props);
 }
 
 export async function unmount() {
-  console.log('shop app unmount');
+  console.log('utils app unmount');
   root.unmount();
 }
 

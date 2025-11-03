@@ -14,8 +14,7 @@
   "scripts": {
     "build": "webpack --config webpack.dev.config.js",
     "watch": "webpack --config webpack.dev.config.js --watch",
-    "start": "lerna run start --parallel",
-    "start-monorepo": "cross-env NODE_OPTIONS=--openssl-legacy-provider rescripts start"
+    "start": "lerna run start --parallel"
   },
   "browserslist": {
     "production": [

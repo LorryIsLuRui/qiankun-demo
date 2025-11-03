@@ -1,6 +1,7 @@
 // 注册子应用
 import { registerMicroApps, start } from 'qiankun';
 const SHOP_PORT = 8081;
+const UTILS_PORT = 8082;
 
 registerMicroApps([
   {
@@ -9,12 +10,12 @@ registerMicroApps([
     container: '#child-container',
     activeRule: '/shop',
   },
-//   {
-//     name: 'shop',
-//     entry: { scripts: ['//localhost:7100/main.js'] },
-//     container: '#shop',
-//     activeRule: '/yourActiveRule2',
-//   },
+  {
+    name: 'utils',
+    entry: `//localhost:${UTILS_PORT}`,
+    container: '#child-container',
+    activeRule: '/utils',
+  },
 ]);
 
 start();

@@ -1,7 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
-const { library } = require('webpack');
-const packageName = require('./package.json').name;
 const SHOP_PORT = 8081;
 
 module.exports = {
@@ -10,15 +8,12 @@ module.exports = {
         shop: './lib/shop.js',
     },
     output: {
-        // filename: '[name].bundle.js',
-        // clean: true,
         path: path.resolve(__dirname, 'dist'),
         library: { type: 'umd', name: 'shop' },
         libraryTarget: 'umd',
         filename: '[name].js',
         globalObject: 'this',  // 解决浏览器/Node 环境下的全局对象冲突
         umdNamedDefine: true,
-        // jsonpFunction: `webpackJsonp_${packageName}`,
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -51,7 +46,6 @@ module.exports = {
                 exclude: /node_modules/,  // 排除第三方依赖
                 use: {
                     loader: 'babel-loader',
-                    // Babel 配置直接写在这里
                     options: {
                         presets: [
                             // 1. 处理 ES6+ 语法

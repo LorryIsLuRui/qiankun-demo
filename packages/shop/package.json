@@ -22,8 +22,7 @@
   ],
   "scripts": {
     "test": "node ./__tests__/shop.test.js",
-    "start": "webpack serve --config webpack.dev.config.js --open",
-    "start-monorepo": "cross-env NODE_OPTIONS=--openssl-legacy-provider rescripts start"
+    "start": "webpack serve --config webpack.dev.config.js --open"
   },
   "dependencies": {
     "react": "^19.2.0",

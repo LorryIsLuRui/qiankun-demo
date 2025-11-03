@@ -1,18 +1,19 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
-const { library } = require('webpack');
-const { MAIN_PORT } = require('./global.config');
-const packageName = require('./package.json').name;
+const SHOP_PORT = 8082;
 
 module.exports = {
     mode: 'development',
     entry: {
-        main: './lib/main.js'
+        utils: './lib/utils.js',
     },
     output: {
         path: path.resolve(__dirname, 'dist'),
-        library: `${packageName}-[name]`,
+        library: { type: 'umd', name: 'utils' },
         libraryTarget: 'umd',
+        filename: '[name].js',
+        globalObject: 'this',  // 解决浏览器/Node 环境下的全局对象冲突
+        umdNamedDefine: true,
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -27,7 +28,7 @@ module.exports = {
     },
     devServer: {
         static: './dist',
-        port: MAIN_PORT,
+        port: SHOP_PORT,
         historyApiFallback: true,
         headers: {
             'Access-Control-Allow-Origin': '*'  // 允许主应用跨域访问
@@ -41,8 +42,8 @@ module.exports = {
                 use: ['style-loader', 'css-loader'],
             },
             {
-                test: /\.(js|jsx)$/,
-                exclude: /node_modules/,
+                test: /\.(js|jsx)$/,  // 同时匹配 js 和 jsx 文件
+                exclude: /node_modules/,  // 排除第三方依赖
                 use: {
                     loader: 'babel-loader',
                     options: {
