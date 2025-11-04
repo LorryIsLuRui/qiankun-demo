@@ -1,8 +1,6 @@
-const utils = () => {
-  return 'Hello from utils';
+const utilsSayHi = () => {
+  return 'Hello from utilsSayHi';
 }
-const txt = utils();
-console.log(txt);
 
 export * from './life-cycles';
-export { utils };
+export { utilsSayHi };

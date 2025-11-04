@@ -9,6 +9,7 @@ registerMicroApps([
     entry: `//localhost:${SHOP_PORT}`,
     container: '#child-container',
     activeRule: '/shop',
+    props: { monorepoName: 'shop' },
   },
   {
     name: 'utils',
