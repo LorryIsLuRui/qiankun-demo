@@ -19,4 +19,5 @@ bootstrap新增子应用配置
 # TODO:
 1. 集成一个创建子应用的cli
 2. 子应用间通信？模块联邦？
+3. qiankun工作原理？lerna？模块联邦
 
