@@ -1,8 +1,0 @@
-{
-  "presets": [
-    ["@babel/preset-react", { "runtime": "automatic" }],  // 转译 React JSX
-    ["@babel/preset-env", { 
-      "modules": "commonjs"  // 强制将 ES6 模块转为 CommonJS
-    }]
-  ]
-}

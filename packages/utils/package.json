@@ -1,0 +1,28 @@
+{
+  "name": "utils",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "homepage": "https://github.com/LorryIsLuRui/qiankun-demo#readme",
+  "bugs": {
+    "url": "https://github.com/LorryIsLuRui/qiankun-demo/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LorryIsLuRui/qiankun-demo.git"
+  },
+  "license": "ISC",
+  "author": "LorryIsLuRui <534774764@qq.com>",
+  "main": "lib/utils.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "node ./__tests__/utils.test.js",
+    "start": "webpack serve --config webpack.dev.config.js",
+    "build": "rm -rf dist && webpack --config webpack.dev.config.js"
+  }
+}
