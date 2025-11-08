@@ -1,64 +1,49 @@
 const path = require('path');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { ModuleFederationPlugin } = require('webpack').container;
-const UTILS_PORT = 8082;
+const { name } = require('./package.json');
+const COMPONENTS_PORT = 8083;
 
 module.exports = {
     mode: 'development',
     entry: {
-        utils: './lib/utils.js',
+        app: './src/index.js',
     },
     output: {
-        publicPath: `http://localhost:${UTILS_PORT}/`,
+        filename: '[name].[contenthash].js',
+        publicPath: `http://localhost:${COMPONENTS_PORT}/`,
         path: path.resolve(__dirname, 'dist'),
-        library: { type: 'window', name: 'utils' },
-        // libraryTarget: 'window',
+        library: `${name}-[name]`,
+        libraryTarget: 'umd',
+        chunkLoadingGlobal: `webpackJsonp_${name}`,
+        globalObject: 'window',
+        // library: { type: 'var', name: 'components' },
         // filename: '[name].js',
-        // globalObject: 'this',  // 解决浏览器/Node 环境下的全局对象冲突
         // umdNamedDefine: true,
     },
     plugins: [
         new ModuleFederationPlugin({
-            name: 'utils',
-            filename: 'utilsEntry.js',
+            name: 'components',
+            library: { type: "var", name: "components" },
+            filename: 'componentsEntry.js',
             exposes: {
-                './index': './lib/utils.js',
+                './Header': './src/header/Header.jsx',
             },
             shared: {
                 react: { singleton: true, eager: true, requiredVersion: '^19.2.0'},
-                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0', },
+                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0',  },
             },
         }),
+        new HtmlWebpackPlugin({
+            template: "./public/index.html",
+            chunks: ['components','app'],
+            chunksSortMode: "manual"
+        }),
     ],
-    // optimization: {
-    //     // was added because in this example we have more than one entrypoint on a single HTML page. 
-    //     // Without this, we could get into trouble described here. Read the Code Splitting chapter for more details.
-    //     // runtimeChunk: 'single',
-    //     // splitChunks: {
-    //     //     chunks: 'async',
-    //     // },
-    //     splitChunks: {
-    //         cacheGroups: {
-    //             defaultVendors: {
-    //                 name: `chunk-vendors`,
-    //                 test: /[\\/]node_modules[\\/]/,
-    //                 priority: -10,
-    //                 chunks: 'async',
-    //                 reuseExistingChunk: true
-    //             },
-    //             common: {
-    //                 name: `chunk-common`,
-    //                 minChunks: 2,
-    //                 priority: -20,
-    //                 chunks: 'async',
-    //                 reuseExistingChunk: true
-    //             }
-    //         }
-    //     }
-    // },
     devServer: {
-        static: './dist',
-        port: UTILS_PORT,
-        historyApiFallback: true,
+        // static: './dist',
+        port: COMPONENTS_PORT,
+        // historyApiFallback: true,
         headers: {
             'Access-Control-Allow-Origin': '*'  // 允许主应用跨域访问
         }

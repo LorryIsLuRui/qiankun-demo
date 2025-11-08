@@ -2,6 +2,7 @@
 import { registerMicroApps, start } from 'qiankun';
 const SHOP_PORT = 8081;
 const UTILS_PORT = 8082;
+const COMPONENTS_PORT = 8083;
 
 registerMicroApps([
   {
@@ -9,7 +10,7 @@ registerMicroApps([
     entry: `//localhost:${SHOP_PORT}`,
     container: '#child-container',
     activeRule: '/shop',
-    props: { monorepoName: 'shop' },
+    props: { monorepoName: 'shop' }
   },
   {
     name: 'utils',
@@ -17,6 +18,12 @@ registerMicroApps([
     container: '#child-container',
     activeRule: '/utils',
   },
+  {
+    name: 'components',
+    entry: `//localhost:${COMPONENTS_PORT}`,
+    container: '#child-container',
+    activeRule: '/components',
+  },
 ]);
 
-start();
+start({ sandbox: false });

@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "test": "node ./__tests__/main.test.js",
-    "start": "webpack serve --config webpack.dev.config.js --open"
+    "start": "webpack serve --config webpack.dev.config.js"
   },
   "dependencies": {
     "react": "^19.2.0",

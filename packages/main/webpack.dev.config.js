@@ -6,13 +6,9 @@ const packageName = require('./package.json').name;
 
 module.exports = {
     mode: 'development',
-    entry: {
-        main: './lib/main.js'
-    },
+    entry: './lib/main.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
-        library: `${packageName}-[name]`,
-        libraryTarget: 'umd',
     },
     plugins: [
         new HtmlWebpackPlugin({

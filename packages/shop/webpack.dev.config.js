@@ -1,4 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { ModuleFederationPlugin } = require('webpack').container;
+const { name } = require('./package.json');
 const path = require('path');
 const SHOP_PORT = 8081;
 
@@ -8,23 +10,42 @@ module.exports = {
         shop: './lib/shop.js',
     },
     output: {
+        publicPath: `http://localhost:${SHOP_PORT}/`,
         path: path.resolve(__dirname, 'dist'),
-        library: { type: 'umd', name: 'shop' },
-        libraryTarget: 'umd',
+        library: `${name}-[name]`,
         filename: '[name].js',
-        globalObject: 'this',  // 解决浏览器/Node 环境下的全局对象冲突
-        umdNamedDefine: true,
+        libraryTarget: 'umd',
+        chunkLoadingGlobal: `webpackJsonp_${name}`,
+        // library: { type: 'umd', name: 'shop' },
+        // filename: '[name].js',
+        // globalObject: 'this',  // 解决浏览器/Node 环境下的全局对象冲突
+        // umdNamedDefine: true,
     },
     plugins: [
         new HtmlWebpackPlugin({
             title: 'Development Qiankun Demo',
             template: path.resolve(__dirname, './public/index.html'),
-        })
+        }),
+        new ModuleFederationPlugin({
+            name: 'shop',
+            remotes: {
+                // utils: 'utils@http://localhost:8082/utilsEntry.js',
+                components: 'components@http://localhost:8083/componentsEntry.js',
+            },
+            shared: {
+                react: { singleton: true, eager: true, requiredVersion: '^19.2.0'},
+                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0',  },
+            }
+        }),
     ],
     optimization: {
         // was added because in this example we have more than one entrypoint on a single HTML page. 
         // Without this, we could get into trouble described here. Read the Code Splitting chapter for more details.
         runtimeChunk: 'single',
+        // splitChunks: {
+        //     // include all types of chunks
+        //     chunks: 'all',
+        // },
     },
     devServer: {
         static: './dist',

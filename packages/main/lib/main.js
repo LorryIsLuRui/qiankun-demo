@@ -13,13 +13,3 @@ if (!window.__POWERED_BY_QIANKUN__) {
   render({});
 }
 
-// let root = null;
-// const render = () => {
-//     console.log('====main render====');
-//   if (!root) {
-//     root = createRoot(document.querySelector('#root'));
-//   }
-//   root.render(<App />);
-// }
-
-// render({});
