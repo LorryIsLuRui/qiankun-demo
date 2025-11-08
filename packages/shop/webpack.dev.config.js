@@ -29,12 +29,12 @@ module.exports = {
         new ModuleFederationPlugin({
             name: 'shop',
             remotes: {
-                // utils: 'utils@http://localhost:8082/utilsEntry.js',
+                utils: 'utils@http://localhost:8082/utilsEntry.js',
                 components: 'components@http://localhost:8083/componentsEntry.js',
             },
             shared: {
-                react: { singleton: true, eager: true, requiredVersion: '^19.2.0'},
-                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0',  },
+                react: { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default'},
+                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0',  shareScope: 'default'},
             }
         }),
     ],

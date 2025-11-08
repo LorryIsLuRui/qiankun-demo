@@ -1,16 +1,19 @@
 const path = require('path');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { ModuleFederationPlugin } = require('webpack').container;
+const { name } = require('./package.json');
 const UTILS_PORT = 8082;
 
 module.exports = {
     mode: 'development',
     entry: {
-        utils: './lib/utils.js',
+        app: './lib/index.js',
     },
     output: {
         publicPath: `http://localhost:${UTILS_PORT}/`,
         path: path.resolve(__dirname, 'dist'),
         library: { type: 'window', name: 'utils' },
+        chunkLoadingGlobal: `webpackJsonp_${name}`,
         // libraryTarget: 'window',
         // filename: '[name].js',
         // globalObject: 'this',  // 解决浏览器/Node 环境下的全局对象冲突
@@ -24,37 +27,16 @@ module.exports = {
                 './index': './lib/utils.js',
             },
             shared: {
-                react: { singleton: true, eager: true, requiredVersion: '^19.2.0'},
-                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0', },
+                react: { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },
+                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },
             },
         }),
+        new HtmlWebpackPlugin({
+            template: "./public/index.html",
+            chunks: ['utils', 'app'],
+            chunksSortMode: "manual"
+        }),
     ],
-    // optimization: {
-    //     // was added because in this example we have more than one entrypoint on a single HTML page. 
-    //     // Without this, we could get into trouble described here. Read the Code Splitting chapter for more details.
-    //     // runtimeChunk: 'single',
-    //     // splitChunks: {
-    //     //     chunks: 'async',
-    //     // },
-    //     splitChunks: {
-    //         cacheGroups: {
-    //             defaultVendors: {
-    //                 name: `chunk-vendors`,
-    //                 test: /[\\/]node_modules[\\/]/,
-    //                 priority: -10,
-    //                 chunks: 'async',
-    //                 reuseExistingChunk: true
-    //             },
-    //             common: {
-    //                 name: `chunk-common`,
-    //                 minChunks: 2,
-    //                 priority: -20,
-    //                 chunks: 'async',
-    //                 reuseExistingChunk: true
-    //             }
-    //         }
-    //     }
-    // },
     devServer: {
         static: './dist',
         port: UTILS_PORT,

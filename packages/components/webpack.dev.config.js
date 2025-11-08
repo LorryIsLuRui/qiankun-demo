@@ -30,8 +30,8 @@ module.exports = {
                 './Header': './src/header/Header.jsx',
             },
             shared: {
-                react: { singleton: true, eager: true, requiredVersion: '^19.2.0'},
-                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0',  },
+                react: { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default'},
+                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default'  },
             },
         }),
         new HtmlWebpackPlugin({

@@ -22,6 +22,7 @@
   ],
   "scripts": {
     "test": "node ./__tests__/utils.test.js",
-    "start": "webpack serve --config webpack.dev.config.js"
+    "start": "webpack serve --config webpack.dev.config.js",
+    "build": "rm -rf dist && webpack --config webpack.dev.config.js"
   }
 }
