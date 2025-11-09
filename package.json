@@ -6,7 +6,7 @@
   "name": "qiankun-lerna-demo",
   "version": "1.0.0",
   "dependencies": {
-    "qiankun": "2.2.2"
+    "qiankun": "^2.10.16"
   },
   "devDependencies": {
     "lerna": "^9.0.0"

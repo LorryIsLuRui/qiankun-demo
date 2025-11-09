@@ -23,11 +23,13 @@ bootstrap新增子应用配置(utils components等这些不需要，不作为子
 1. 集成一个创建子应用的cli
 2. 子应用间通信？模块联邦？
 3. qiankun工作原理？lerna？模块联邦
+4. 还原高版本后，再试试
 
 
 # 问题记录
 1. 使用webpack的module federation作为资源通信的方式，会有如下问题
-- 资源共享的模块如通用utils、components包，不应该作为qiankun子应用register，仅仅是模块联邦的应用(降版本可以了， TODO: 还原高版本后，再试试)
+- 资源共享的模块如通用utils、components包，不应该作为qiankun子应用register，仅仅是模块联邦的应用(降版本可以了， 
+TODO: 还原高版本后，再试试)
 
 - qiankun应用和模块联邦应用加载的时机问题，导致在引用时有运行时的报错：load script failed
 暂时解决：降低qiankun版本，修改utils、components打包逻辑，
