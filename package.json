@@ -14,9 +14,6 @@
   "scripts": {
     "build": "webpack --config webpack.dev.config.js",
     "watch": "webpack --config webpack.dev.config.js --watch",
-    "start:main": "lerna run start --scope main-app",
-    "start:micro": "lerna run start --scope \"@your-org/micro-*\"",
-    "start-1": "npm run start:main && npm run start:micro",
     "start": "lerna run start --parallel"
   },
   "browserslist": {

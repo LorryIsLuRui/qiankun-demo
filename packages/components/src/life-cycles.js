@@ -11,7 +11,6 @@ let root = null;
 
 // 渲染函数
 function render(props) {
-  console.log('====components render====');
   const mountNode = props.container ? props.container.querySelector(`#${CHILD_CONTAINER_ID}`) : document.getElementById('root');
   if (!root) {
     root = createRoot(mountNode);
@@ -47,5 +46,4 @@ export async function unmount(props) {
 
 // 独立运行逻辑
 if (!window.__POWERED_BY_QIANKUN__) {
-  console.log('====components don not render====');
 }
