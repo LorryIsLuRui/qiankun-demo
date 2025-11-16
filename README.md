@@ -28,11 +28,20 @@ bootstrap新增子应用配置
 
 # 问题记录
 1. 使用webpack的module federation作为资源通信的方式，会有如下问题
-- 资源共享的模块如通用utils、components包，不应该作为qiankun子应用register，仅仅是模块联邦的应用(降版本可以了， 
-TODO: 还原高版本后，再试试)
+- 资源共享的模块如通用utils、components包，不应该作为qiankun子应用在bootstrap register，仅仅是模块联邦应用
 
-2. qiankun应用和模块联邦应用加载的时机问题，导致在引用时有运行时的报错：load script failed
-暂时解决：修改utils、components打包逻辑，utils\components还是同时作为qiankun子应用。
+2. qiankun启动调用start时应该start({ sandbox: false });否则会报miss script错误
+原因：sandbox=true时：shop子应用启动，有代理window_1,调用的utils components注册在window_1，webpack runtime执行下面的代码就会报错：
+
+    ```
+        const container = window["utils"]; // 👈 直接从全局 window 获取容器
+        await container.init(__webpack_share_scopes__.default);
+        const factory = await container.get("./index");
+        const module = factory();
+    ```
+    最优解决方案：提前在基座上加载utils components，子应用不再加载，直接调引用。 https://chatgpt.com/s/t_69158c3bbf908191a466469f7bb9dd4f
+
+
 
 
 

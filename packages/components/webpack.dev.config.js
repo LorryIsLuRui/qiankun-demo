@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { ModuleFederationPlugin } = require('webpack').container;
 const { name } = require('./package.json');
+const { type } = require('os');
 const COMPONENTS_PORT = 8083;
 
 module.exports = {
@@ -12,14 +13,7 @@ module.exports = {
     output: {
         filename: '[name].[contenthash].js',
         publicPath: `http://localhost:${COMPONENTS_PORT}/`,
-        path: path.resolve(__dirname, 'dist'),
-        library: `${name}-[name]`,
-        libraryTarget: 'umd',
-        chunkLoadingGlobal: `webpackJsonp_${name}`,
-        globalObject: 'window',
-        // library: { type: 'var', name: 'components' },
-        // filename: '[name].js',
-        // umdNamedDefine: true,
+        path: path.resolve(__dirname, 'dist')
     },
     plugins: [
         new ModuleFederationPlugin({

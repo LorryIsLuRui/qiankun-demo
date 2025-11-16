@@ -10,14 +10,9 @@ module.exports = {
         app: './lib/index.js',
     },
     output: {
+        filename: '[name].[contenthash].js',
         publicPath: `http://localhost:${UTILS_PORT}/`,
-        path: path.resolve(__dirname, 'dist'),
-        library: { type: 'window', name: 'utils' },
-        chunkLoadingGlobal: `webpackJsonp_${name}`,
-        // libraryTarget: 'window',
-        // filename: '[name].js',
-        // globalObject: 'this',  // 解决浏览器/Node 环境下的全局对象冲突
-        // umdNamedDefine: true,
+        path: path.resolve(__dirname, 'dist')
     },
     plugins: [
         new ModuleFederationPlugin({

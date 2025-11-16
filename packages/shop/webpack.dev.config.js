@@ -16,10 +16,6 @@ module.exports = {
         filename: '[name].js',
         libraryTarget: 'umd',
         chunkLoadingGlobal: `webpackJsonp_${name}`,
-        // library: { type: 'umd', name: 'shop' },
-        // filename: '[name].js',
-        // globalObject: 'this',  // 解决浏览器/Node 环境下的全局对象冲突
-        // umdNamedDefine: true,
     },
     plugins: [
         new HtmlWebpackPlugin({
@@ -41,11 +37,7 @@ module.exports = {
     optimization: {
         // was added because in this example we have more than one entrypoint on a single HTML page. 
         // Without this, we could get into trouble described here. Read the Code Splitting chapter for more details.
-        runtimeChunk: 'single',
-        // splitChunks: {
-        //     // include all types of chunks
-        //     chunks: 'all',
-        // },
+        runtimeChunk: 'single'
     },
     devServer: {
         static: './dist',
