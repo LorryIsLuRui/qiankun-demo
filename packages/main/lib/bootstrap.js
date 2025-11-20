@@ -4,12 +4,16 @@ const SHOP_PORT = 8081;
 const UTILS_PORT = 8082;
 const COMPONENTS_PORT = 8083;
 
+const isDev = process.env.NODE_ENV === 'development';
+const prefix = isDev ? '/shop' : '/microfrontend/shop';
+const entryHost = `${process.env.PUBLIC_PATH}${isDev ? ':' + SHOP_PORT : prefix}/`;
+
 registerMicroApps([
   {
     name: 'shop',
-    entry: `//localhost:${SHOP_PORT}`,
+    entry: entryHost,
     container: '#child-container',
-    activeRule: '/shop',
+    activeRule: prefix,
     props: { monorepoName: 'shop' }
   },
 ]);

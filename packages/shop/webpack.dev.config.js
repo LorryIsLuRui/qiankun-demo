@@ -1,16 +1,24 @@
+require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
+
+const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { ModuleFederationPlugin } = require('webpack').container;
 const { name } = require('./package.json');
 const path = require('path');
+
 const SHOP_PORT = 8081;
+const devPublicPath = `${process.env.PUBLIC_PATH}:${SHOP_PORT}/`;
+const prefix = '/microfrontend/';
+const onlinePublicPath = `${prefix}shop/`;
+const isDev = process.env.NODE_ENV === 'development';
 
 module.exports = {
-    mode: 'development',
+    mode: `${process.env.NODE_ENV}`,
     entry: {
         shop: './lib/shop.js',
     },
     output: {
-        publicPath: `http://localhost:${SHOP_PORT}/`,
+        publicPath: isDev ? devPublicPath :  onlinePublicPath,
         path: path.resolve(__dirname, 'dist'),
         library: `${name}-[name]`,
         filename: '[name].js',
@@ -18,6 +26,11 @@ module.exports = {
         chunkLoadingGlobal: `webpackJsonp_${name}`,
     },
     plugins: [
+        new Dotenv({
+            path: `./.env.${process.env.NODE_ENV}`,
+            systemvars: true, // 允许读取系统环境变量
+            silent: true,     // 没找到文件时打印 warning
+        }),
         new HtmlWebpackPlugin({
             title: 'Development Qiankun Demo',
             template: path.resolve(__dirname, './public/index.html'),
@@ -25,12 +38,12 @@ module.exports = {
         new ModuleFederationPlugin({
             name: 'shop',
             remotes: {
-                utils: 'utils@http://localhost:8082/utilsEntry.js',
-                components: 'components@http://localhost:8083/componentsEntry.js',
+                utils: `utils@${process.env.PUBLIC_PATH}${isDev ? ':8082' : prefix + 'utils'}/utilsEntry.js`,
+                components: `components@${process.env.PUBLIC_PATH}${isDev ? ':8083' : prefix + 'components'}/componentsEntry.js`,
             },
             shared: {
-                react: { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default'},
-                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0',  shareScope: 'default'},
+                react: { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },
+                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },
             }
         }),
     ],

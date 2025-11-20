@@ -1,20 +1,31 @@
+// 使node环境跟浏览器环境的env一致，node环境需要单独加载一次
+require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
+
 const path = require('path');
+const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { ModuleFederationPlugin } = require('webpack').container;
-const { name } = require('./package.json');
 const UTILS_PORT = 8082;
+const devPublicPath = `${process.env.PUBLIC_PATH}:${UTILS_PORT}/`;
+const onlinePublicPath = '/microfrontend/utils/';
+const isDev = process.env.NODE_ENV === 'development';
 
 module.exports = {
-    mode: 'development',
+    mode: `${process.env.NODE_ENV}`,
     entry: {
         app: './lib/index.js',
     },
     output: {
         filename: '[name].[contenthash].js',
-        publicPath: `http://localhost:${UTILS_PORT}/`,
+        publicPath: isDev ? devPublicPath :  onlinePublicPath,
         path: path.resolve(__dirname, 'dist')
     },
     plugins: [
+        new Dotenv({
+            path: `./.env.${process.env.NODE_ENV}`,
+            systemvars: true, // 允许读取系统环境变量
+            silent: true,     // 没找到文件时打印 warning
+        }),
         new ModuleFederationPlugin({
             name: 'utils',
             filename: 'utilsEntry.js',

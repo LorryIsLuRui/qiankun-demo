@@ -9,10 +9,11 @@
     "qiankun": "^2.10.16"
   },
   "devDependencies": {
+    "dotenv-webpack": "^8.1.1",
     "lerna": "^9.0.0"
   },
   "scripts": {
-    "build": "webpack --config webpack.dev.config.js",
+    "build": "lerna run build --parallel",
     "watch": "webpack --config webpack.dev.config.js --watch",
     "start": "lerna run start --parallel"
   },

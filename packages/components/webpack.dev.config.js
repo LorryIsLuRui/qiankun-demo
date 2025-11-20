@@ -1,21 +1,32 @@
+require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
+
+const Dotenv = require('dotenv-webpack');
 const path = require('path');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { ModuleFederationPlugin } = require('webpack').container;
 const { name } = require('./package.json');
 const { type } = require('os');
 const COMPONENTS_PORT = 8083;
+const devPublicPath = `${process.env.PUBLIC_PATH}:${COMPONENTS_PORT}/`;
+const onlinePublicPath = '/microfrontend/components/';
+const isDev = process.env.NODE_ENV === 'development';
 
 module.exports = {
-    mode: 'development',
+    mode: `${process.env.NODE_ENV}`,
     entry: {
         app: './src/index.js',
     },
     output: {
         filename: '[name].[contenthash].js',
-        publicPath: `http://localhost:${COMPONENTS_PORT}/`,
+        publicPath: isDev ? devPublicPath :  onlinePublicPath,
         path: path.resolve(__dirname, 'dist')
     },
     plugins: [
+        new Dotenv({
+            path: `./.env.${process.env.NODE_ENV}`,
+            systemvars: true, // 允许读取系统环境变量
+            silent: true,     // 没找到文件时打印 warning
+        }),
         new ModuleFederationPlugin({
             name: 'components',
             library: { type: "var", name: "components" },
@@ -24,13 +35,13 @@ module.exports = {
                 './Header': './src/header/Header.jsx',
             },
             shared: {
-                react: { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default'},
-                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default'  },
+                react: { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },
+                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },
             },
         }),
         new HtmlWebpackPlugin({
             template: "./public/index.html",
-            chunks: ['components','app'],
+            chunks: ['components', 'app'],
             chunksSortMode: "manual"
         }),
     ],
