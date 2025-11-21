@@ -31,10 +31,10 @@ jobs:
 
       - name: Upload dist to server
         run: |
-          rsync -avz dist/main/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/main/
-          rsync -avz dist/shop/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/shop/
-          rsync -avz dist/utils/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/utils/
-          rsync -avz dist/components/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/components/
+          rsync -avz packages/main/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/main/
+          rsync -avz packages/shop/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/shop/
+          rsync -avz packages/utils/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/utils/
+          rsync -avz packages/components/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/components/
 
       - name: Restart Nginx
         run: |
