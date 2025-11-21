@@ -25,17 +25,21 @@ jobs:
           npm run build
 
       - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SECRET_SSH_KEY }}
-
-      - name: Upload dist to server
         run: |
-          rsync -avz packages/main/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/main/
-          rsync -avz packages/shop/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/shop/
-          rsync -avz packages/utils/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/utils/
-          rsync -avz packages/components/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/components/
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
+      - name: Add server to known_hosts
+        run: ssh-keyscan -H 82.157.148.39 >> ~/.ssh/known_hosts
+      
+      - name: Deploy to Server
+        run: |
+          rsync -avz packages/main/dist/        root@82.157.148.39:/www/wwwroot/microfrontend/main/
+          rsync -avz packages/shop/dist/        root@82.157.148.39:/www/wwwroot/microfrontend/shop/
+          rsync -avz packages/utils/dist/       root@82.157.148.39:/www/wwwroot/microfrontend/utils/
+          rsync -avz packages/components/dist/  root@82.157.148.39:/www/wwwroot/microfrontend/components/
+        
       - name: Restart Nginx
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "nginx -s reload"
