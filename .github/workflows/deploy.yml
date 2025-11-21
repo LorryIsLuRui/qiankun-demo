@@ -1,0 +1,44 @@
+name: Deploy Microfrontend
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install deps
+        run: npm install
+
+      - name: Build all apps
+        run: |
+          npm run build:main
+          npm run build:shop
+          npm run build:utils
+          npm run build:components
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SECRET_SSH_KEY }}
+
+      - name: Upload dist to server
+        run: |
+          rsync -avz dist/main/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/main/
+          rsync -avz dist/shop/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/shop/
+          rsync -avz dist/utils/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/utils/
+          rsync -avz dist/components/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/www/wwwroot/microfrontend/components/
+
+      - name: Restart Nginx
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "nginx -s reload"
