@@ -16,6 +16,9 @@ bootstrap新增子应用配置
 3. 新建public/index.html
 4. 新建life-cycles.js 导出三个钩子
 
+# 线上部署
+1. 初始版本
+2. 自动化部署
 
 
 # TODO:
