@@ -17,7 +17,8 @@ module.exports = {
         app: './src/index.js',
     },
     output: {
-        filename: '[name].[contenthash].js',
+        filename: '[name].[contenthash].js', // 入口模块 + 同步依赖模块（初始加载的核心代码）。
+        chunkFilename: '[name].[contenthash].js', // 异步依赖模块（按需加载的代码）。
         publicPath: isDev ? devPublicPath :  onlinePublicPath,
         path: path.resolve(__dirname, 'dist')
     },
