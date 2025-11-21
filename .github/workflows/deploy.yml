@@ -30,6 +30,12 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - name: Check key format
+        run: |
+          echo "Lines in id_rsa:"
+          wc -l ~/.ssh/id_rsa
+          head -n 5 ~/.ssh/id_rsa
+
       - name: Add server to known_hosts
         run: ssh-keyscan -H 82.157.148.39 >> ~/.ssh/known_hosts
       
