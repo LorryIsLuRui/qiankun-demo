@@ -19,20 +19,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整的 git 历史以进行 diff 比较
 
       - name: Detect changed packages
         id: diff
         run: |
-          echo "main=$(git diff --name-only HEAD^ HEAD | grep '^packages/main/' | wc -l)" >> $GITHUB_OUTPUT
-          echo "shop=$(git diff --name-only HEAD^ HEAD | grep '^packages/shop/' | wc -l)" >> $GITHUB_OUTPUT
-          echo "utils=$(git diff --name-only HEAD^ HEAD | grep '^packages/utils/' | wc -l)" >> $GITHUB_OUTPUT
-          echo "components=$(git diff --name-only HEAD^ HEAD | grep '^packages/components/' | wc -l)" >> $GITHUB_OUTPUT
+          echo "Event before: ${{ github.event.before }}"
+          echo "Event head:   ${{ github.sha }}"
+          git --no-pager log -n 5 --pretty=oneline
+          echo "main=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^packages/main/' | wc -l)" >> $GITHUB_OUTPUT
+          echo "shop=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^packages/shop/' | wc -l)" >> $GITHUB_OUTPUT
+          echo "utils=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^packages/utils/' | wc -l)" >> $GITHUB_OUTPUT
+          echo "components=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^packages/components/' | wc -l)" >> $GITHUB_OUTPUT
 
           echo "==== Changed Result ===="
-          echo "main: $(grep '^packages/main/' -c <<< $(git diff --name-only HEAD^ HEAD))"
-          echo "shop: $(grep '^packages/shop/' -c <<< $(git diff --name-only HEAD^ HEAD))"
-          echo "utils: $(grep '^packages/utils/' -c <<< $(git diff --name-only HEAD^ HEAD))"
-          echo "components: $(grep '^packages/components/' -c <<< $(git diff --name-only HEAD^ HEAD))"
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} || true
+          echo "main: $(grep '^packages/main/' -c <<< $(git diff --name-only ${{ github.event.before }} ${{ github.sha }}))"
+          echo "shop: $(grep '^packages/shop/' -c <<< $(git diff --name-only ${{ github.event.before }} ${{ github.sha }}))"
+          echo "utils: $(grep '^packages/utils/' -c <<< $(git diff --name-only ${{ github.event.before }} ${{ github.sha }}))"
+          echo "components: $(grep '^packages/components/' -c <<< $(git diff --name-only ${{ github.event.before }} ${{ github.sha }}))"
 
 
   # #########################################################
@@ -48,6 +54,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整的 git 历史以进行 diff 比较
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
