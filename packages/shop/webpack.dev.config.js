@@ -21,8 +21,8 @@ module.exports = {
         publicPath: isDev ? devPublicPath :  onlinePublicPath,
         path: path.resolve(__dirname, 'dist'),
         library: `${name}-[name]`,
-        filename: '[name].[contenthash].js', // 入口模块 + 同步依赖模块（初始加载的核心代码）。
-        chunkFilename: '[name].[contenthash].js', // 异步依赖模块（按需加载的代码）。
+        filename: 'assets/[name].[contenthash].js', // 入口模块 + 同步依赖模块（初始加载的核心代码）。
+        chunkFilename: 'assets/[name].[contenthash].js', // 异步依赖模块（按需加载的代码）。
         libraryTarget: 'umd',
         chunkLoadingGlobal: `webpackJsonp_${name}`,
     },
@@ -39,8 +39,8 @@ module.exports = {
         new ModuleFederationPlugin({
             name: 'shop',
             remotes: {
-                utils: `utils@${process.env.PUBLIC_PATH}${isDev ? ':8082' : prefix + 'utils'}/utilsEntry.js`,
-                components: `components@${process.env.PUBLIC_PATH}${isDev ? ':8083' : prefix + 'components'}/componentsEntry.js`,
+                utils: `utils@${process.env.PUBLIC_PATH}${isDev ? ':8082' : prefix + 'utils'}/remoteEntry.js`,
+                components: `components@${process.env.PUBLIC_PATH}${isDev ? ':8083' : prefix + 'components'}/remoteEntry.js`,
             },
             shared: {
                 react: { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },

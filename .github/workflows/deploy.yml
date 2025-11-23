@@ -1,3 +1,4 @@
+# 增量部署
 name: Deploy Microfrontend
 
 on:
@@ -5,8 +6,41 @@ on:
     branches: ["main"]
 
 jobs:
-  deploy:
+  detect:
+      runs-on: ubuntu-latest
+      outputs:
+        main_changed: ${{ steps.filter.outputs.main }}
+        shop_changed: ${{ steps.filter.outputs.shop }}
+        utils_changed: ${{ steps.filter.outputs.utils }}
+        components_changed: ${{ steps.filter.outputs.components }}
+      steps:
+        - uses: actions/checkout@v4
+
+        - name: Detect changed packages
+          id: filter
+          uses: dorny/paths-filter@v3
+          with:
+            filters: |
+              main:
+                - 'packages/main/**'
+              shop:
+                - 'packages/shop/**'
+              utils:
+                - 'packages/utils/**'
+              components:
+                - 'packages/components/**'
+  build-and-deploy:
+    needs: detect
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [ main, shop, utils, components ]
+    if: >
+      (matrix.package == 'main' && needs.detect.outputs.main_changed == 'true') ||
+      (matrix.package == 'shop' && needs.detect.outputs.shop_changed == 'true') ||
+      (matrix.package == 'utils' && needs.detect.outputs.utils_changed == 'true') ||
+      (matrix.package == 'components' && needs.detect.outputs.components_changed == 'true')
 
     steps:
       - name: Checkout
@@ -18,11 +52,22 @@ jobs:
           node-version: 18
 
       - name: Install deps
-        run: npm install
+        run: npm ci
 
-      - name: Build all apps
+      - name: Build package
         run: |
-          npm run build
+          if [ "${{ matrix.package }}" = "main" ]; then
+            cd packages/main && npm ci && npm run build
+          elif [ "${{ matrix.package }}" = "shop" ]; then
+            cd packages/shop && npm ci && npm run build
+          elif [ "${{ matrix.package }}" = "utils" ]; then
+            cd packages/utils && npm ci && npm run build
+          else
+            cd packages/components && npm ci && npm run build
+          fi
+      # - name: Build all apps
+      #   run: |
+      #     npm run build
 
       - name: Setup SSH
         run: |
@@ -41,11 +86,75 @@ jobs:
       
       - name: Deploy to Server
         run: |
-          rsync -avz packages/main/dist/        root@82.157.148.39:/www/wwwroot/microfrontend/main/
-          rsync -avz packages/shop/dist/        root@82.157.148.39:/www/wwwroot/microfrontend/shop/
-          rsync -avz packages/utils/dist/       root@82.157.148.39:/www/wwwroot/microfrontend/utils/
-          rsync -avz packages/components/dist/  root@82.157.148.39:/www/wwwroot/microfrontend/components/
+          if [ "${{ matrix.package }}" = "main" ]; then
+            rsync -avz --delete packages/main/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.REMOTE_BASE }}/main/
+          elif [ "${{ matrix.package }}" = "shop" ]; then
+            rsync -avz --delete packages/shop/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.REMOTE_BASE }}/shop/
+          elif [ "${{ matrix.package }}" = "utils" ]; then
+            rsync -avz --delete packages/utils/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.REMOTE_BASE }}/utils/
+          else
+            rsync -avz --delete packages/components/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.REMOTE_BASE }}/components/
+          fi
+          # rsync -avz packages/main/dist/        root@82.157.148.39:/www/wwwroot/microfrontend/main/
+          # rsync -avz packages/shop/dist/        root@82.157.148.39:/www/wwwroot/microfrontend/shop/
+          # rsync -avz packages/utils/dist/       root@82.157.148.39:/www/wwwroot/microfrontend/utils/
+          # rsync -avz packages/components/dist/  root@82.157.148.39:/www/wwwroot/microfrontend/components/
         
       - name: Restart Nginx
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "nginx -s reload"
+
+
+
+# 不检测变更应用 直接全量部署
+# name: Deploy Microfrontend
+
+# on:
+#   push:
+#     branches: ["main"]
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+
+#       - name: Install Node
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 18
+
+#       - name: Install deps
+#         run: npm install
+
+#       - name: Build all apps
+#         run: |
+#           npm run build
+
+#       - name: Setup SSH
+#         run: |
+#           mkdir -p ~/.ssh
+#           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+#           chmod 600 ~/.ssh/id_rsa
+
+#       - name: Check key format
+#         run: |
+#           echo "Lines in id_rsa:"
+#           wc -l ~/.ssh/id_rsa
+#           head -n 5 ~/.ssh/id_rsa
+
+#       - name: Add server to known_hosts
+#         run: ssh-keyscan -H 82.157.148.39 >> ~/.ssh/known_hosts
+      
+#       - name: Deploy to Server
+#         run: |
+#           rsync -avz packages/main/dist/        root@82.157.148.39:/www/wwwroot/microfrontend/main/
+#           rsync -avz packages/shop/dist/        root@82.157.148.39:/www/wwwroot/microfrontend/shop/
+#           rsync -avz packages/utils/dist/       root@82.157.148.39:/www/wwwroot/microfrontend/utils/
+#           rsync -avz packages/components/dist/  root@82.157.148.39:/www/wwwroot/microfrontend/components/
+        
+#       - name: Restart Nginx
+#         run: |
+#           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "nginx -s reload"
