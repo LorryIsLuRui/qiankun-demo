@@ -16,17 +16,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-#      - name: Start ssh-agent and add private key
-#        uses: webfactory/ssh-agent@v0
- #       with:
-  #        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Start ssh-agent and add private key
+        uses: webfactory/ssh-agent@v0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-  #    - name: Ensure remote host is known
-   #     run: |
-    #      mkdir -p ~/.ssh
-     #     PORT="${{ secrets.SSH_PORT }}"
-      #    if [ -z "$PORT" ]; then PORT=22; fi
-       #   ssh-keyscan -p "$PORT" "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+      - name: Ensure remote host is known
+        run: |
+          mkdir -p ~/.ssh
+          PORT="${{ secrets.SSH_PORT }}"
+          if [ -z "$PORT" ]; then PORT=22; fi
+          ssh-keyscan -p "$PORT" "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Find nginx.conf and upload
         run: |
