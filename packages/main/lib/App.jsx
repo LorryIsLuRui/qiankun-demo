@@ -8,7 +8,7 @@ const App = () => {
     }, []);
     return (
         <React.StrictMode>
-            <h1>hi, starting......这是主应用</h1>
+            <h1>hi, starting......这是主应用!</h1>
             <BrowserRouter basename={process.env.NODE_ENV === 'development' ? '/' : '/microfrontend/'}>
                 <Link to="/shop">shop</Link>
             </BrowserRouter>
