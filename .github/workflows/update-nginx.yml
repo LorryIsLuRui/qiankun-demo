@@ -1,0 +1,67 @@
+name: Update remote nginx.conf (BT Panel)
+
+on:
+  push:
+    paths:
+      - "**/nginx.conf"
+      - "**/*.conf"
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    name: Upload nginx.conf and reload BT nginx
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start ssh-agent and add private key
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Ensure remote host is known
+        run: |
+          mkdir -p ~/.ssh
+          PORT="${{ secrets.SSH_PORT }}"
+          if [ -z "$PORT" ]; then PORT=22; fi
+          ssh-keyscan -p "$PORT" "${{ secrets.SERVER_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Find nginx.conf and upload
+        run: |
+          set -e
+          # 查找第一个 nginx.conf
+          SRC=$(git ls-files | grep -m1 -E '(^|/)(nginx\.conf)$' || true)
+          if [ -z "$SRC" ]; then
+            echo "nginx.conf not found in repository."
+            exit 1
+          fi
+
+          PORT="${{ secrets.SSH_PORT }}"
+          if [ -z "$PORT" ]; then PORT=22; fi
+
+          echo "Uploading $SRC to BT panel..."
+
+          scp -P "$PORT" "$SRC" \
+            "${{ secrets.SERVER_USER }}"@"${{ secrets.SERVER_HOST }}":/www/server/panel/vhost/nginx/microfrontend.conf
+
+      - name: Test nginx config syntax on remote
+        run: |
+          PORT="${{ secrets.SSH_PORT }}"
+          if [ -z "$PORT" ]; then PORT=22; fi
+
+          echo "Checking nginx syntax..."
+          ssh -p "$PORT" "${{ secrets.SERVER_USER }}"@"${{ secrets.SERVER_HOST }}" "
+            sudo /www/server/nginx/sbin/nginx -t
+          "
+
+      - name: Reload nginx safely on BT panel
+        run: |
+          PORT="${{ secrets.SSH_PORT }}"
+          if [ -z "$PORT" ]; then PORT=22; fi
+
+          echo "Reloading nginx..."
+          ssh -p "$PORT" "${{ secrets.SERVER_USER }}"@"${{ secrets.SERVER_HOST }}" "
+            sudo /etc/init.d/nginx reload || sudo systemctl reload nginx
+          "

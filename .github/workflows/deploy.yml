@@ -1,109 +1,99 @@
-# 增量部署
-name: Deploy Microfrontend
+name: Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - master
 
 jobs:
+  # #########################################################
+  # 1. 检测哪些 package 发生变化
+  # #########################################################
   detect:
-      runs-on: ubuntu-latest
-      outputs:
-        main_changed: ${{ steps.filter.outputs.main }}
-        shop_changed: ${{ steps.filter.outputs.shop }}
-        utils_changed: ${{ steps.filter.outputs.utils }}
-        components_changed: ${{ steps.filter.outputs.components }}
-      steps:
-        - uses: actions/checkout@v4
-
-        - name: Detect changed packages
-          id: filter
-          uses: dorny/paths-filter@v3
-          with:
-            filters: |
-              main:
-                - 'packages/main/**'
-              shop:
-                - 'packages/shop/**'
-              utils:
-                - 'packages/utils/**'
-              components:
-                - 'packages/components/**'
-  build-and-deploy:
-    needs: detect
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        package: [ main, shop, utils, components ]
-    if: >
-      (matrix.package == 'main' && needs.detect.outputs.main_changed == 'true') ||
-      (matrix.package == 'shop' && needs.detect.outputs.shop_changed == 'true') ||
-      (matrix.package == 'utils' && needs.detect.outputs.utils_changed == 'true') ||
-      (matrix.package == 'components' && needs.detect.outputs.components_changed == 'true')
+    outputs:
+      main_changed: ${{ steps.diff.outputs.main }}
+      shop_changed: ${{ steps.diff.outputs.shop }}
+      utils_changed: ${{ steps.diff.outputs.utils }}
+      components_changed: ${{ steps.diff.outputs.components }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install Node
+      - name: Detect changed packages
+        id: diff
+        run: |
+          echo "main=$(git diff --name-only HEAD^ HEAD | grep '^packages/main/' | wc -l)" >> $GITHUB_OUTPUT
+          echo "shop=$(git diff --name-only HEAD^ HEAD | grep '^packages/shop/' | wc -l)" >> $GITHUB_OUTPUT
+          echo "utils=$(git diff --name-only HEAD^ HEAD | grep '^packages/utils/' | wc -l)" >> $GITHUB_OUTPUT
+          echo "components=$(git diff --name-only HEAD^ HEAD | grep '^packages/components/' | wc -l)" >> $GITHUB_OUTPUT
+
+          echo "==== Changed Result ===="
+          echo "main: $(grep '^packages/main/' -c <<< $(git diff --name-only HEAD^ HEAD))"
+          echo "shop: $(grep '^packages/shop/' -c <<< $(git diff --name-only HEAD^ HEAD))"
+          echo "utils: $(grep '^packages/utils/' -c <<< $(git diff --name-only HEAD^ HEAD))"
+          echo "components: $(grep '^packages/components/' -c <<< $(git diff --name-only HEAD^ HEAD))"
+
+
+  # #########################################################
+  # 2. 编译 & 部署（matrix 按需执行）
+  # #########################################################
+  build_and_deploy:
+    needs: detect
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        package: [main, shop, utils, components]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
 
-      - name: Build package
-        run: |
-          if [ "${{ matrix.package }}" = "main" ]; then
-            cd packages/main && npm ci && npm run build
-          elif [ "${{ matrix.package }}" = "shop" ]; then
-            cd packages/shop && npm ci && npm run build
-          elif [ "${{ matrix.package }}" = "utils" ]; then
-            cd packages/utils && npm ci && npm run build
-          else
-            cd packages/components && npm ci && npm run build
-          fi
-      # - name: Build all apps
-      #   run: |
-      #     npm run build
-
+      # ---------------- SSH 配置 ----------------
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
 
-      - name: Check key format
-        run: |
-          echo "Lines in id_rsa:"
-          wc -l ~/.ssh/id_rsa
-          head -n 5 ~/.ssh/id_rsa
+      # ---------------- BUILD ----------------
+      - name: Build changed package
+        if: |
+          (matrix.package == 'main' && needs.detect.outputs.main_changed != '0') ||
+          (matrix.package == 'shop' && needs.detect.outputs.shop_changed != '0') ||
+          (matrix.package == 'utils' && needs.detect.outputs.utils_changed != '0') ||
+          (matrix.package == 'components' && needs.detect.outputs.components_changed != '0')
+        run: npm run build --workspace=packages/${{ matrix.package }}
 
-      - name: Add server to known_hosts
-        run: ssh-keyscan -H 82.157.148.39 >> ~/.ssh/known_hosts
-      
-      - name: Deploy to Server
+      # ---------------- DEPLOY（rsync） ----------------
+      - name: Deploy to server
+        if: |
+          (matrix.package == 'main' && needs.detect.outputs.main_changed != '0') ||
+          (matrix.package == 'shop' && needs.detect.outputs.shop_changed != '0') ||
+          (matrix.package == 'utils' && needs.detect.outputs.utils_changed != '0') ||
+          (matrix.package == 'components' && needs.detect.outputs.components_changed != '0')
         run: |
-          if [ "${{ matrix.package }}" = "main" ]; then
-            rsync -avz --delete packages/main/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.REMOTE_BASE }}/main/
-          elif [ "${{ matrix.package }}" = "shop" ]; then
-            rsync -avz --delete packages/shop/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.REMOTE_BASE }}/shop/
-          elif [ "${{ matrix.package }}" = "utils" ]; then
-            rsync -avz --delete packages/utils/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.REMOTE_BASE }}/utils/
-          else
-            rsync -avz --delete packages/components/dist/ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.REMOTE_BASE }}/components/
-          fi
-          # rsync -avz packages/main/dist/        root@82.157.148.39:/www/wwwroot/microfrontend/main/
-          # rsync -avz packages/shop/dist/        root@82.157.148.39:/www/wwwroot/microfrontend/shop/
-          # rsync -avz packages/utils/dist/       root@82.157.148.39:/www/wwwroot/microfrontend/utils/
-          # rsync -avz packages/components/dist/  root@82.157.148.39:/www/wwwroot/microfrontend/components/
-        
-      - name: Restart Nginx
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "nginx -s reload"
+          echo "Deploying ${{ matrix.package }} ..."
+          rsync -avz --delete \
+            packages/${{ matrix.package }}/dist/ \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{secrets.REMOTE_BASE}}/${{ matrix.package }}/
 
+      - name: Deployment complete
+        if: |
+          (matrix.package == 'main' && needs.detect.outputs.main_changed != '0') ||
+          (matrix.package == 'shop' && needs.detect.outputs.shop_changed != '0') ||
+          (matrix.package == 'utils' && needs.detect.outputs.utils_changed != '0') ||
+          (matrix.package == 'components' && needs.detect.outputs.components_changed != '0')
+        run: echo "🚀 Finished deploying ${{ matrix.package }}"
 
 
 # 不检测变更应用 直接全量部署
