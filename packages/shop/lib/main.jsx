@@ -11,7 +11,7 @@ const ShopApp = () => {
     }, []);
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <h1>11Welcome to the Shop Application</h1>
+            <h1>Welcome to the Shop Application</h1>
             {/* <Coms /> */}
             <Header />
         </Suspense>
