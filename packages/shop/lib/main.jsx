@@ -1,6 +1,7 @@
 import {lazy, Suspense, useEffect } from "react";
 import Header from "components/Header";
 import { utilsSayHi } from "utils/index";
+import "./index.less";
 
 
 const ShopApp = () => {
@@ -11,8 +12,10 @@ const ShopApp = () => {
     }, []);
     return (
         <Suspense fallback={<div>Loading...</div>}>
-            <h1>Welcome to the Shop Application!</h1>
-            {/* <Coms /> */}
+            <div className="shop-app">
+                <h1>Welcome to the Shop Application!</h1>
+                <div className="desc">shop desc</div>
+            </div>
             <Header />
         </Suspense>
     );

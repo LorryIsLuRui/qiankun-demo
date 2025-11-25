@@ -11,6 +11,7 @@ const devPublicPath = `${process.env.PUBLIC_PATH}:${SHOP_PORT}/`;
 const prefix = '/microfrontend/';
 const onlinePublicPath = `${prefix}shop/`;
 const isDev = process.env.NODE_ENV === 'development';
+const clsPrefix = 'shop-app';
 
 module.exports = {
     mode: `${process.env.NODE_ENV}`,
@@ -65,8 +66,28 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.css$/i,
-                use: ['style-loader', 'css-loader'],
+                test: /\.less$/i,
+                use: ['style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            importLoaders: 2, // 允许在 CSS 中通过 @import 引入的文件也能被后面的 loader 处理
+                        }
+                    },
+                    {
+                        loader: "postcss-loader",
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    require("postcss-prefix-selector")({
+                                        prefix: `.${clsPrefix}`
+                                    })
+                                ]
+                            }
+                        },
+                    },
+                    'less-loader'
+                ],
             },
             {
                 test: /\.(js|jsx)$/,  // 同时匹配 js 和 jsx 文件

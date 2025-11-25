@@ -10,7 +10,9 @@
   },
   "devDependencies": {
     "dotenv-webpack": "^8.1.1",
-    "lerna": "^9.0.0"
+    "lerna": "^9.0.0",
+    "postcss-loader": "^8.2.0",
+    "postcss-prefix-selector": "^2.1.1"
   },
   "scripts": {
     "build": "lerna run build --parallel",

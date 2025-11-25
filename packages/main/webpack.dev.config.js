@@ -8,6 +8,7 @@ const { MAIN_PORT } = require('./global.config');
 const devPublicPath = `${process.env.PUBLIC_PATH}:${MAIN_PORT}/`;
 const onlinePublicPath = '/microfrontend/main/';
 const isDev = process.env.NODE_ENV === 'development';
+const prefix = 'main-app';
 
 module.exports = {
     mode: `${process.env.NODE_ENV}`,
@@ -15,7 +16,7 @@ module.exports = {
     output: {
         filename: 'assets/[name].[contenthash].js', // 入口模块 + 同步依赖模块（初始加载的核心代码）。
         chunkFilename: 'assets/[name].[contenthash].js', // 异步依赖模块（按需加载的代码）。
-        publicPath: isDev ? devPublicPath :  onlinePublicPath,
+        publicPath: isDev ? devPublicPath : onlinePublicPath,
         path: path.resolve(__dirname, 'dist'),
     },
     plugins: [
@@ -46,8 +47,29 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.css$/i,
-                use: ['style-loader', 'css-loader'],
+                test: /\.less$/i,
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            importLoaders: 2, // 允许在 CSS 中通过 @import 引入的文件也能被后面的 loader 处理
+                        }
+                    },
+                    {
+                        loader: "postcss-loader",
+                        options: {
+                            postcssOptions: {
+                                plugins: [
+                                    require("postcss-prefix-selector")({
+                                        prefix: `.${prefix}`
+                                    })
+                                ]
+                            }
+                        },
+                    },
+                    'less-loader'
+                ],
             },
             {
                 test: /\.(js|jsx)$/,
