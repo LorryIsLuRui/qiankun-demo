@@ -19,7 +19,7 @@ module.exports = {
     output: {
         filename: 'assets/[name].[contenthash].js', // 入口模块 + 同步依赖模块（初始加载的核心代码）。
         chunkFilename: 'assets/[name].[contenthash].js', // 异步依赖模块（按需加载的代码）。
-        publicPath: isDev ? devPublicPath :  onlinePublicPath,
+        publicPath: isDev ? devPublicPath : onlinePublicPath,
         path: path.resolve(__dirname, 'dist')
     },
     plugins: [
@@ -30,7 +30,16 @@ module.exports = {
         }),
         new ModuleFederationPlugin({
             name: 'components',
-            library: { type: "var", name: "components" },
+            // library: { type: "var", name: "components" },
+            // 详情查看 https://github.com/umijs/qiankun/issues/1148
+            // 在使用 qiankun 微前端的架构下
+            // 如果使用 var 需要弃用 qiankun 得沙箱机制，需要设置
+            // start({
+            //   sandbox: false
+            //   sandbox: { strictStyleIsolation: false },
+            // });
+            // 或者将 type 设置为 window，即可不对 qiankun 做调整
+            library: { type: "window", name: "components" },
             filename: 'remoteEntry.js',
             exposes: {
                 './Header': './src/header/Header.jsx',

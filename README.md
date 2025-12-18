@@ -1,6 +1,6 @@
 # qiankun-demo
 qiankun webpack mf typescript javascript
-使用webpack+react+qiankun搭建微应用结构，with-lerna分支版本使用lerna管理多个子应用的升级发布
+使用webpack ModuleFederationPlugin + react+qiankun搭建微应用结构，with-lerna分支版本使用lerna管理多个子应用的升级发布
 1. npm的workspaces实现子包依赖安装到根目录的link
 2. lerna run start --parallel替代lerna watch，同时运行多个包的 dev server
     ·lerna watch 的作用是监听文件变化后自动重启对应包任务（类似 nodemon），但在前端微应用里，webpack 自带的 watch 功能已经足够了，不需要额外层级。
@@ -33,7 +33,7 @@ bootstrap新增子应用配置
 1. 使用webpack的module federation作为资源通信的方式，会有如下问题
 - 资源共享的模块如通用utils、components包，不应该作为qiankun子应用在bootstrap register，仅仅是模块联邦应用
 
-2. qiankun启动调用start时应该start({ sandbox: false });否则会报miss script错误
+2. (❌) qiankun启动调用start时应该start({ sandbox: false });否则会报miss script错误
 原因：sandbox=true时：shop子应用启动，有代理window_1,调用的utils components注册在window_1，webpack runtime执行下面的代码就会报错：
 
     ```
@@ -43,6 +43,9 @@ bootstrap新增子应用配置
         const module = factory();
     ```
     最优解决方案：提前在基座上加载utils components，子应用不再加载，直接调引用。 https://chatgpt.com/s/t_69158c3bbf908191a466469f7bb9dd4f
+
+3. qiankun+moduleFederationPlugin架构中，将模块联邦应用的library.type设置为window，就可以搭配qiankun的沙箱机制运行
+
 
 
 
