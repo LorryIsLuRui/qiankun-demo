@@ -45,6 +45,13 @@ bootstrap新增子应用配置
     最优解决方案：提前在基座上加载utils components，子应用不再加载，直接调引用。 https://chatgpt.com/s/t_69158c3bbf908191a466469f7bb9dd4f
 
 3. qiankun+moduleFederationPlugin架构中，将模块联邦应用的library.type设置为window/umd，就可以搭配qiankun的沙箱机制运行
+原因：var 声明永远不会变成 proxyWindow.xxx，因为 with(proxyWindow) 只能影响“查找”，不能影响“var 的声明归属”。所以使用var导致proxyWindow和真实window上都找不到。
+qiankun内源码：
+```
+    with (proxyWindow) {
+        var utils = {...}
+    }
+```
 
 
 
