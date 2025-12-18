@@ -38,8 +38,8 @@ module.exports = {
             //   sandbox: false
             //   sandbox: { strictStyleIsolation: false },
             // });
-            // 或者将 type 设置为 window，即可不对 qiankun 做调整
-            library: { type: "window", name: "components" },
+            // 或者将 type 设置为 window、umd，即可不对 qiankun 做调整
+            library: { type: "umd", name: "components" },
             filename: 'remoteEntry.js',
             exposes: {
                 './Header': './src/header/Header.jsx',

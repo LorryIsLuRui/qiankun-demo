@@ -44,7 +44,7 @@ bootstrap新增子应用配置
     ```
     最优解决方案：提前在基座上加载utils components，子应用不再加载，直接调引用。 https://chatgpt.com/s/t_69158c3bbf908191a466469f7bb9dd4f
 
-3. qiankun+moduleFederationPlugin架构中，将模块联邦应用的library.type设置为window，就可以搭配qiankun的沙箱机制运行
+3. qiankun+moduleFederationPlugin架构中，将模块联邦应用的library.type设置为window/umd，就可以搭配qiankun的沙箱机制运行
 
 
 

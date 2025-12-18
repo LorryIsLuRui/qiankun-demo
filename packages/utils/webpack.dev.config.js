@@ -30,7 +30,7 @@ module.exports = {
         new ModuleFederationPlugin({
             name: 'utils',
             filename: 'remoteEntry.js',
-            library: { type: "window", name: "utils" },
+            library: { type: "umd", name: "utils" },
             // 详情查看 https://github.com/umijs/qiankun/issues/1148
             // 在使用 qiankun 微前端的架构下
             // 如果使用 var 需要弃用 qiankun 得沙箱机制，需要设置
@@ -38,7 +38,7 @@ module.exports = {
             //   sandbox: false
             //   sandbox: { strictStyleIsolation: false },
             // });
-            // 或者将 type 设置为 window，即可不对 qiankun 做调整
+            // 或者将 type 设置为 window\umd，即可不对 qiankun 做调整
             exposes: {
                 './index': './lib/utils.js',
             },
