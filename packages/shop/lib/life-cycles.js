@@ -14,7 +14,8 @@ function render(props) {
     root = createRoot(mountNode);
   }
 
-  root.render(<App />);
+  // 将 props 传递给子应用组件
+  root.render(<App qiankunProps={props} />);
 }
 
 // 命名导出生命周期（关键）
@@ -24,10 +25,27 @@ export async function bootstrap() {
 
 export async function mount(props) {
   console.log('shop app mount');
+  
+  // 监听 qiankun 全局状态变化
   props.onGlobalStateChange((state, prev) => {
-    // state: 变更后的状态; prev 变更前的状态
-    console.log('====shop',state, prev);
+    console.log('====shop qiankun state change', state, prev);
   });
+  
+  // 如果主应用传递了 Redux store，可以订阅变化
+  if (props.mainStore) {
+    console.log('子应用接收到主应用 store');
+    
+    // 订阅主应用 Redux store 的变化
+    props.mainStore.subscribe(() => {
+      const mainState = props.mainStore.getState();
+      console.log('主应用 Redux 状态变化:', mainState);
+    });
+    
+    // 获取当前状态
+    const currentState = props.getMainState();
+    console.log('主应用当前状态:', currentState);
+  }
+  
   render(props);
 }
 

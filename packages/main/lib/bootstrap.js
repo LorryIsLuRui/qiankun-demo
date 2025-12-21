@@ -4,6 +4,8 @@ import {
   start,
   initGlobalState,
 } from 'qiankun';
+import { store } from './store';
+
 const SHOP_PORT = 8081;
 const UTILS_PORT = 8082;
 const COMPONENTS_PORT = 8083;
@@ -31,7 +33,14 @@ registerMicroApps([
     entry: entryHost,
     container: '#app-child-container',
     activeRule: prefix,
-    props: { monorepoName: 'shop' },
+    props: { 
+      monorepoName: 'shop',
+      // 传递主应用的 Redux store
+      mainStore: store,
+      // 传递 Redux 相关方法
+      getMainState: () => store.getState(),
+      dispatchMainAction: (action) => store.dispatch(action),
+    },
     sandbox: {
         strictStyleIsolation: true,
         experimentalStyleIsolation: true,
