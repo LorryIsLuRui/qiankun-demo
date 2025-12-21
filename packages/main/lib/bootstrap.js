@@ -4,7 +4,7 @@ import {
   start,
   initGlobalState,
 } from 'qiankun';
-import { store } from './store';
+import { store, injectReducer, removeReducer } from './store';
 
 const SHOP_PORT = 8081;
 const UTILS_PORT = 8082;
@@ -35,11 +35,14 @@ registerMicroApps([
     activeRule: prefix,
     props: { 
       monorepoName: 'shop',
-      // 传递主应用的 Redux store
+      // 传递主应用的 Redux store（所有应用共享同一个 store）
       mainStore: store,
       // 传递 Redux 相关方法
       getMainState: () => store.getState(),
       dispatchMainAction: (action) => store.dispatch(action),
+      // 传递动态注入 reducer 的方法
+      injectReducer: injectReducer,
+      removeReducer: removeReducer,
     },
     sandbox: {
         strictStyleIsolation: true,

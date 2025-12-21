@@ -2,10 +2,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
+import productsSlice from './store/slices/productsSlice';
 import App from './main.jsx';
 
 const CHILD_CONTAINER_ID = 'child-container';
 let root = null;
+let isReducerInjected = false;
 
 // 渲染函数
 function render(props) {
@@ -14,8 +17,24 @@ function render(props) {
     root = createRoot(mountNode);
   }
 
-  // 将 props 传递给子应用组件
-  root.render(<App qiankunProps={props} />);
+  // 使用主应用的 store（所有应用共享同一个 store）
+  const store = props.mainStore || createFallbackStore();
+  
+  root.render(
+    <Provider store={store}>
+      <App qiankunProps={props} />
+    </Provider>
+  );
+}
+
+// 独立运行时的降级 store
+function createFallbackStore() {
+  const { configureStore } = require('@reduxjs/toolkit');
+  return configureStore({
+    reducer: {
+      products: productsSlice,
+    },
+  });
 }
 
 // 命名导出生命周期（关键）
@@ -31,19 +50,15 @@ export async function mount(props) {
     console.log('====shop qiankun state change', state, prev);
   });
   
-  // 如果主应用传递了 Redux store，可以订阅变化
-  if (props.mainStore) {
-    console.log('子应用接收到主应用 store');
+  // 将子应用的 reducer 注入到主应用的 store
+  if (props.injectReducer && !isReducerInjected) {
+    console.log('🔌 Shop 子应用注入 reducer 到主应用 store');
+    props.injectReducer('shop_products', productsSlice);
+    isReducerInjected = true;
     
-    // 订阅主应用 Redux store 的变化
-    props.mainStore.subscribe(() => {
-      const mainState = props.mainStore.getState();
-      console.log('主应用 Redux 状态变化:', mainState);
-    });
-    
-    // 获取当前状态
-    const currentState = props.getMainState();
-    console.log('主应用当前状态:', currentState);
+    // 打印当前 store 的状态树结构
+    const state = props.getMainState();
+    console.log('📦 当前 Store 树结构:', Object.keys(state));
   }
   
   render(props);
@@ -51,6 +66,14 @@ export async function mount(props) {
 
 export async function unmount(props) {
   console.log('shop app unmount');
+  
+  // 卸载时移除 reducer（可选，根据需求决定是否保留状态）
+  if (props.removeReducer && isReducerInjected) {
+    console.log('🔌 Shop 子应用移除 reducer');
+    props.removeReducer('shop_products');
+    isReducerInjected = false;
+  }
+  
   const { container } = props;
   const dom = container
     ? container.querySelector(`#${CHILD_CONTAINER_ID}`)
@@ -66,6 +89,11 @@ export async function unmount(props) {
 
 // 独立运行逻辑
 if (!window.__POWERED_BY_QIANKUN__) {
-  const root = createRoot(document.getElementById(CHILD_CONTAINER_ID));
-  root.render(<App />);
+  const fallbackStore = createFallbackStore();
+  const root = createRoot(document.getElementById('root'));
+  root.render(
+    <Provider store={fallbackStore}>
+      <App qiankunProps={{}} />
+    </Provider>
+  );
 }
