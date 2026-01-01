@@ -19,13 +19,14 @@ module.exports = {
         shop: './lib/shop.js',
     },
     output: {
-        publicPath: isDev ? devPublicPath :  onlinePublicPath,
+        publicPath: isDev ? devPublicPath : onlinePublicPath,
         path: path.resolve(__dirname, 'dist'),
         library: `${name}-[name]`,
         filename: 'assets/[name].[contenthash].js', // 入口模块 + 同步依赖模块（初始加载的核心代码）。
         chunkFilename: 'assets/[name].[contenthash].js', // 异步依赖模块（按需加载的代码）。
         libraryTarget: 'umd',
         chunkLoadingGlobal: `webpackJsonp_${name}`,
+        clean: true,
     },
     plugins: [
         new Dotenv({
@@ -44,8 +45,22 @@ module.exports = {
                 components: `components@${process.env.PUBLIC_PATH}${isDev ? ':8083' : prefix + 'components'}/remoteEntry.js`,
             },
             shared: {
-                react: { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },
-                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },
+                react: {
+                    // singleton pattern 确保所有微前端子应用和主应用使用同一个 React 实例，避免版本冲突和重复加载。
+                    singleton: true,
+                    // 默认false，库提取成单独的异步 chunk，入口文件不能直接import这些库
+                    // true, 将其直接打入主入口文件bundle中, 
+                    // eager: true,
+                    requiredVersion: '^19.2.0',
+                    // 确保在不同的模块联邦实例之间共享相同版本的 React。
+                    shareScope: 'default'
+                },
+                'react-dom': {
+                    singleton: true,
+                    // eager: true,
+                    requiredVersion: '^19.2.0',
+                    shareScope: 'default'
+                },
             }
         }),
     ],
@@ -62,6 +77,7 @@ module.exports = {
             'Access-Control-Allow-Origin': '*'  // 允许主应用跨域访问
         }
     },
+    // extensions 用于在引入模块时省略文件后缀名，例如 import MyComponent from './MyComponent'，webpack 会依次尝试添加 .js 和 .jsx 后缀进行解析。
     resolve: { extensions: ['.js', '.jsx'] },
     module: {
         rules: [

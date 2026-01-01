@@ -19,7 +19,8 @@ module.exports = {
         filename: 'assets/[name].[contenthash].js', // 入口模块 + 同步依赖模块（初始加载的核心代码）。
         chunkFilename: 'assets/[name].[contenthash].js', // 异步依赖模块（按需加载的代码）。
         publicPath: isDev ? devPublicPath : onlinePublicPath,
-        path: path.resolve(__dirname, 'dist')
+        path: path.resolve(__dirname, 'dist'),
+        clean: true,
     },
     plugins: [
         new Dotenv({
@@ -43,8 +44,18 @@ module.exports = {
                 './index': './lib/utils.js',
             },
             shared: {
-                react: { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },
-                'react-dom': { singleton: true, eager: true, requiredVersion: '^19.2.0', shareScope: 'default' },
+                react: {
+                    singleton: true,
+                    // eager: true,
+                    requiredVersion: '^19.2.0',
+                    shareScope: 'default'
+                },
+                'react-dom': {
+                    singleton: true,
+                    // eager: true,
+                    requiredVersion: '^19.2.0',
+                    shareScope: 'default'
+                },
             },
         }),
         new HtmlWebpackPlugin({

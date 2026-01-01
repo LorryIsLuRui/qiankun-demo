@@ -54,6 +54,13 @@ qiankun内源码：
 ```
 
 
+# 服务器相关
+项目路径：/www/wwwroot/microfrontend/main/
+密钥：~/.ssh
+nginx配置：/www/server/panel/vhost/nginx/microfrontend.conf
+页面访问：http://211.159.158.196/microfrontend/main/
+SERVER_HOST: 211.159.158.196
+
 
 
 

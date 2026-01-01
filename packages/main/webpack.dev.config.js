@@ -18,6 +18,7 @@ module.exports = {
         chunkFilename: 'assets/[name].[contenthash].js', // 异步依赖模块（按需加载的代码）。
         publicPath: isDev ? devPublicPath : onlinePublicPath,
         path: path.resolve(__dirname, 'dist'),
+        clean: true, // 每次构建清理 dist
     },
     plugins: [
         new Dotenv({
@@ -34,6 +35,15 @@ module.exports = {
         // was added because in this example we have more than one entrypoint on a single HTML page. 
         // Without this, we could get into trouble described here. Read the Code Splitting chapter for more details.
         runtimeChunk: 'single',
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'main-vendors',
+                    chunks: 'all', // 提取第三方库，它们通常不怎么变，利于强缓存
+                },
+            },
+        },
     },
     devServer: {
         static: './dist',
