@@ -45,9 +45,10 @@ registerMicroApps([
       removeReducer: removeReducer,
     },
     sandbox: {
-        strictStyleIsolation: true,
+        strictStyleIsolation: false,
         experimentalStyleIsolation: true,
-        excludeAssetFilter: (url) => true,
+        // excludeAssetFilter是用来排除某些不需要沙箱处理的资源，such as 微前端模块联邦的remoteEntry.js
+        excludeAssetFilter: (url) => url.includes('remoteEntry.js'),
     },
   },
 ]);
