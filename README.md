@@ -52,6 +52,11 @@ qiankun内源码：
         var utils = {...}
     }
 ```
+4. 多个子应用同屏 son-shop
+修改项：
+- qiankun挂载时修改entry、container、activeRule函数返回true
+- 主应用App.jsx 增加：<div id="son-child-container"></div>
+- 其他参考新增子包
 
 
 # 服务器相关

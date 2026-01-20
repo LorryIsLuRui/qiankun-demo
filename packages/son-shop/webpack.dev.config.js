@@ -2,24 +2,33 @@ require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
 
 const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const { ModuleFederationPlugin } = require('webpack').container;
+const { name } = require('./package.json');
 const path = require('path');
-const { library } = require('webpack');
-const { MAIN_PORT } = require('./global.config');
-const devPublicPath = `${process.env.PUBLIC_PATH}:${MAIN_PORT}/`;
-const onlinePublicPath = '/microfrontend/main/';
-const isDev = process.env.NODE_ENV === 'development';
-const prefix = 'main-app';
 
-module.exports = {
-    mode: `${process.env.NODE_ENV}`,
-    entry: './lib/main.js',
+const SHOP_PORT = 8084;
+const devPublicPath = `${process.env.PUBLIC_PATH}:${SHOP_PORT}/`;
+const prefix = '/microfrontend/';
+const onlinePublicPath = `${prefix}shop/`;
+const isDev = process.env.NODE_ENV === 'development';
+const isAnalyze = process.env.analyze === 'analyze';
+const clsPrefix = 'shop-app';
+
+const smp = new SpeedMeasurePlugin();
+const config = {
+    mode: `${process.env.NODE_ENV || 'development'}`,
+    entry: `./lib/${name}.js`,
     output: {
-        filename: 'assets/[name].[contenthash].js', // 入口模块 + 同步依赖模块（初始加载的核心代码）。
-        chunkFilename: 'assets/[name].[contenthash].js', // 异步依赖模块（按需加载的代码）。
         publicPath: isDev ? devPublicPath : onlinePublicPath,
         path: path.resolve(__dirname, 'dist'),
-        clean: true, // 每次构建清理 dist
+        library: `${name}-[name]`,
+        filename: 'assets/[name].[contenthash].js', // 入口模块 + 同步依赖模块（初始加载的核心代码）。
+        chunkFilename: 'assets/[name].[contenthash].js', // 异步依赖模块（按需加载的代码）。
+        libraryTarget: 'umd',
+        chunkLoadingGlobal: `webpackJsonp_${name}`,
+        clean: true,
     },
     plugins: [
         new Dotenv({
@@ -32,64 +41,66 @@ module.exports = {
             template: path.resolve(__dirname, './public/index.html'),
         }),
         new ModuleFederationPlugin({
-            name: 'main',
-            remotes: {},
+            name,
+            remotes: {
+                utils: `utils@${process.env.PUBLIC_PATH}${isDev ? ':8082' : prefix + 'utils'}/remoteEntry.js`,
+                components: `components@${process.env.PUBLIC_PATH}${isDev ? ':8083' : prefix + 'components'}/remoteEntry.js`,
+            },
             shared: {
                 react: {
                     // singleton pattern 确保所有微前端子应用和主应用使用同一个 React 实例，避免版本冲突和重复加载。
                     singleton: true,
                     // 默认false，库提取成单独的异步 chunk，入口文件不能直接import这些库
                     // true, 将其直接打入主入口文件bundle中, 
-                    eager: true,
+                    eager: false,
                     requiredVersion: '^19.2.0',
                     // 确保在不同的模块联邦实例之间共享相同版本的 React。
                     shareScope: 'default'
                 },
                 'react-dom': {
                     singleton: true,
-                    eager: true,
+                    eager: false,
                     requiredVersion: '^19.2.0',
                     shareScope: 'default'
                 },
             }
         }),
-    ],
+        isAnalyze && (
+            new BundleAnalyzerPlugin({
+                analyzerMode: 'static', // 生成静态 HTML 文件
+                openAnalyzer: false,   // 不自动打开报告页面
+                reportFilename: 'bundle-report.html', // 报告文件名
+            })
+        )
+    ].filter(Boolean),
     optimization: {
         // was added because in this example we have more than one entrypoint on a single HTML page. 
         // Without this, we could get into trouble described here. Read the Code Splitting chapter for more details.
-        runtimeChunk: 'single',
         splitChunks: {
             cacheGroups: {
                 vendor: {
                     test: /[\\/]node_modules[\\/]/,
-                    name: 'main-vendors',
+                    name: `${name}-vendors`,
                     chunks: 'all', // 提取第三方库，它们通常不怎么变，利于强缓存
                 },
-                react: {
-                    test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
-                    name: 'react-vendor',
-                    chunks: 'all',
-                    priority: 20, // 优先级高于 vendor
-                    enforce: true,
-                },
             },
-        },
+        }
     },
     devServer: {
         static: './dist',
-        port: MAIN_PORT,
+        port: SHOP_PORT,
         historyApiFallback: true,
         headers: {
             'Access-Control-Allow-Origin': '*'  // 允许主应用跨域访问
         }
     },
+    // extensions 用于在引入模块时省略文件后缀名，例如 import MyComponent from './MyComponent'，webpack 会依次尝试添加 .js 和 .jsx 后缀进行解析。
     resolve: { extensions: ['.js', '.jsx'] },
     module: {
         rules: [
             {
                 test: /\.less$/i,
-                use: [
-                    'style-loader',
+                use: ['style-loader',
                     {
                         loader: 'css-loader',
                         options: {
@@ -102,7 +113,7 @@ module.exports = {
                             postcssOptions: {
                                 plugins: [
                                     require("postcss-prefix-selector")({
-                                        prefix: `.${prefix}`
+                                        prefix: `.${clsPrefix}`
                                     })
                                 ]
                             }
@@ -112,8 +123,8 @@ module.exports = {
                 ],
             },
             {
-                test: /\.(js|jsx)$/,
-                exclude: /node_modules/,
+                test: /\.(js|jsx)$/,  // 同时匹配 js 和 jsx 文件
+                exclude: /node_modules/,  // 排除第三方依赖
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -134,4 +145,14 @@ module.exports = {
             },
         ],
     },
+    stats: {
+        preset: 'normal',
+        timings: true
+    },
+    performance: {
+        hints: 'warning',
+        maxAssetSize: 500000, // 500kb
+        maxEntrypointSize: 500000,
+    }
 };
+module.exports = smp.wrap(config);

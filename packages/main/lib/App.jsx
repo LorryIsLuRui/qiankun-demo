@@ -88,7 +88,11 @@ const App = () => {
                 <BrowserRouter basename={process.env.NODE_ENV === 'development' ? '/' : '/microfrontend/'}>
                     <Link to="/shop">shop</Link>
                 </BrowserRouter>
-                <div id='app-child-container'></div>
+                <div id='app-child-container'>
+                    
+                </div>
+                <div style={{ height: '50px', background: 'red' }}></div>
+                <div id="son-child-container"></div>
             </div>
         </React.StrictMode>
     )
