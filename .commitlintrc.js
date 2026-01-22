@@ -1,4 +1,5 @@
 // .commitlintrc.js
+// 这需要在git仓库中才能run，我的qiankun-demo不是git仓库，只写了代码学习，
 module.exports = {
   extends: ['@commitlint/config-angular'],
   // 如果你想自定义规范，可以在这里加 rules
