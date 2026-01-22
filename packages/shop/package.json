@@ -35,17 +35,21 @@
     "@babel/preset-env": "^7.28.5",
     "@babel/preset-react": "^7.28.5",
     "@rescripts/cli": "^0.0.16",
+    "@swc/core": "latest",
     "babel-loader": "^10.0.0",
     "cross-env": "^10.1.0",
     "css-loader": "^7.1.2",
     "html-webpack-plugin": "^5.6.4",
     "less-loader": "^12.3.0",
     "style-loader": "^4.0.0",
+    "swc-loader": "latest",
+    "terser-webpack-plugin": "^5.3.9",
     "webpack": "^5.102.1",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2",
-    "@swc/core": "latest",
-    "swc-loader": "latest",
-    "terser-webpack-plugin": "^5.3.9"
+    "@commitlint/cli": "^20.3.1",
+    "@commitlint/config-angular": "^20.3.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7"
   }
 }

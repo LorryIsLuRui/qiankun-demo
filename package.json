@@ -19,7 +19,8 @@
   "scripts": {
     "build": "lerna run build --parallel",
     "watch": "webpack --config webpack.dev.config.js --watch",
-    "start": "lerna run start --parallel"
+    "start": "lerna run start --parallel",
+    "prepare": "husky"
   },
   "browserslist": {
     "production": [
