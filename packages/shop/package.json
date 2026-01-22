@@ -23,7 +23,8 @@
   "scripts": {
     "test": "node ./__tests__/shop.test.js",
     "start": "cross-env NODE_ENV=development webpack serve --config webpack.dev.config.js",
-    "build": "rm -rf dist && cross-env NODE_ENV=production webpack --config webpack.dev.config.js"
+    "build": "rm -rf dist && cross-env NODE_ENV=production webpack --config webpack.dev.config.js",
+    "analyze": "cross-env analyze=analyze NODE_ENV=development  webpack serve --config webpack.dev.config.js"
   },
   "dependencies": {
     "react": "^19.2.0",
@@ -42,6 +43,9 @@
     "style-loader": "^4.0.0",
     "webpack": "^5.102.1",
     "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.2"
+    "webpack-dev-server": "^5.2.2",
+    "@swc/core": "latest",
+    "swc-loader": "latest",
+    "terser-webpack-plugin": "^5.3.9"
   }
 }

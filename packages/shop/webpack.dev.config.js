@@ -2,6 +2,9 @@ require("dotenv").config({ path: `.env.${process.env.NODE_ENV}` });
 
 const Dotenv = require('dotenv-webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const TerserPlugin = require('terser-webpack-plugin');
+const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
 const { ModuleFederationPlugin } = require('webpack').container;
 const { name } = require('./package.json');
 const path = require('path');
@@ -11,10 +14,66 @@ const devPublicPath = `${process.env.PUBLIC_PATH}:${SHOP_PORT}/`;
 const prefix = '/microfrontend/';
 const onlinePublicPath = `${prefix}shop/`;
 const isDev = process.env.NODE_ENV === 'development';
+const isAnalyze = process.env.analyze === 'analyze';
 const clsPrefix = 'shop-app';
-
-module.exports = {
-    mode: `${process.env.NODE_ENV}`,
+const minimizeOptions = isDev
+    ? {}
+    : {
+        minimize: true,
+        minimizer: [
+            new TerserPlugin({
+                // 关键点：告诉插件使用 SWC 而不是 Terser
+                minify: TerserPlugin.swcMinify,
+                // 如果有特殊压缩需求，在这里配置
+                terserOptions: {
+                    compress: {
+                        unused: true,
+                        drop_console: true, // 生产环境去除 console
+                    },
+                    mangle: true, // 开启变量名混淆
+                },
+            }),
+        ],
+    };
+const babelLoaderUse = {
+    loader: 'babel-loader',
+    options: {
+        presets: [
+            // 1. 处理 ES6+ 语法
+            ['@babel/preset-env', {
+                targets: 'last 2 versions, > 0.2%', // 兼容目标浏览器
+                useBuiltIns: 'usage', // 自动引入 polyfill
+                corejs: 3 // 配合 useBuiltIns 使用
+            }],
+            // 2. 处理 React JSX
+            ['@babel/preset-react', {
+                runtime: 'automatic' // 自动导入 React（无需手动写 import React from 'react'）
+            }]
+        ]
+    }
+}
+const swcLoaderUse = {
+    loader: 'swc-loader',
+    options: {
+        jsc: {
+            parser: {
+                // 此配置允许 swc 解析现代 JavaScript 语法和 JSX 语法
+                syntax: 'ecmascript',
+                // 启用对 JSX 语法的支持
+                jsx: true,
+            },
+            transform: {
+                react: {
+                    runtime: 'automatic' // 自动导入 React（无需手动写 import React from 'react'）
+                }
+            },
+            target: 'es2015', // 编译目标环境
+        }
+    }
+};
+const smp = new SpeedMeasurePlugin();
+const config = {
+    mode: `${process.env.NODE_ENV || 'development'}`,
     entry: {
         shop: './lib/shop.js',
     },
@@ -50,24 +109,40 @@ module.exports = {
                     singleton: true,
                     // 默认false，库提取成单独的异步 chunk，入口文件不能直接import这些库
                     // true, 将其直接打入主入口文件bundle中, 
-                    // eager: true,
+                    eager: false,
                     requiredVersion: '^19.2.0',
                     // 确保在不同的模块联邦实例之间共享相同版本的 React。
                     shareScope: 'default'
                 },
                 'react-dom': {
                     singleton: true,
-                    // eager: true,
+                    eager: false,
                     requiredVersion: '^19.2.0',
                     shareScope: 'default'
                 },
             }
         }),
-    ],
+        isAnalyze && (
+            new BundleAnalyzerPlugin({
+                analyzerMode: 'static', // 生成静态 HTML 文件
+                openAnalyzer: false,   // 不自动打开报告页面
+                reportFilename: 'bundle-report.html', // 报告文件名
+            })
+        )
+    ].filter(Boolean),
     optimization: {
         // was added because in this example we have more than one entrypoint on a single HTML page. 
         // Without this, we could get into trouble described here. Read the Code Splitting chapter for more details.
-        runtimeChunk: 'single'
+        splitChunks: {
+            cacheGroups: {
+                vendor: {
+                    test: /[\\/]node_modules[\\/]/,
+                    name: 'shop-vendors',
+                    chunks: 'all', // 提取第三方库，它们通常不怎么变，利于强缓存
+                },
+            },
+        },
+        ...minimizeOptions,
     },
     devServer: {
         static: './dist',
@@ -108,24 +183,27 @@ module.exports = {
             {
                 test: /\.(js|jsx)$/,  // 同时匹配 js 和 jsx 文件
                 exclude: /node_modules/,  // 排除第三方依赖
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: [
-                            // 1. 处理 ES6+ 语法
-                            ['@babel/preset-env', {
-                                targets: 'last 2 versions, > 0.2%', // 兼容目标浏览器
-                                useBuiltIns: 'usage', // 自动引入 polyfill
-                                corejs: 3 // 配合 useBuiltIns 使用
-                            }],
-                            // 2. 处理 React JSX
-                            ['@babel/preset-react', {
-                                runtime: 'automatic' // 自动导入 React（无需手动写 import React from 'react'）
-                            }]
-                        ]
-                    }
-                }
+                // use: babelLoaderUse,
+                use: swcLoaderUse,
             },
         ],
     },
+    stats: {
+        preset: 'normal',
+        timings: true
+    },
+    performance: {
+        hints: 'warning',
+        maxAssetSize: 500000, // 500kb
+        maxEntrypointSize: 500000,
+    },
+    cache: {
+        // 开启webpack5 持久化缓存
+        type: 'filesystem',
+        cacheDirectory: path.resolve(__dirname, '../../.cache/webpack', process.env.PACKAGE_NAME || name),
+        buildDependencies: {
+            config: [__filename], // 当配置文件修改时，缓存失效
+        },
+    }
 };
+module.exports = smp.wrap(config);
