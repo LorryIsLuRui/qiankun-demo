@@ -81,7 +81,17 @@ module.exports = {
         historyApiFallback: true,
         headers: {
             'Access-Control-Allow-Origin': '*'  // 允许主应用跨域访问
-        }
+        },
+        proxy: {
+            '/api': {
+                target: 'https://mock.apifox.cn/m1/2517125-0-default',
+                changeOrigin: true,
+                pathRewrite: { '^/api': '' },
+            },
+        },
+        // onBeforeSetupMiddleware(app, server) {
+        //     console.log(`\nStarting main app on http://localhost:${MAIN_PORT}\n`);
+        // }
     },
     resolve: { extensions: ['.js', '.jsx'] },
     module: {

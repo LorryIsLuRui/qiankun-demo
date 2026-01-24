@@ -1,0 +1,97 @@
+{
+    "hash": "29d70bca7a8a36c9be09",
+    "version": "5.104.1",
+    "time": 24,
+    "builtAt": 1768905235871,
+    "publicPath": "auto",
+    "outputPath": "/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop/dist",
+    "assetsByChunkName": {},
+    "assets": [],
+    "chunks": [
+        {
+            "rendered": false,
+            "initial": true,
+            "entry": true,
+            "recorded": false,
+            "size": 0,
+            "sizes": {},
+            "names": [
+                "main"
+            ],
+            "idHints": [],
+            "runtime": [
+                "main"
+            ],
+            "files": [],
+            "auxiliaryFiles": [],
+            "hash": "9b17773b7d322a94df98",
+            "childrenByOrder": {},
+            "id": 792,
+            "siblings": [],
+            "parents": [],
+            "children": [],
+            "modules": [],
+            "origins": [
+                {
+                    "module": "",
+                    "moduleIdentifier": "",
+                    "moduleName": "",
+                    "loc": "main",
+                    "request": "./src"
+                }
+            ]
+        }
+    ],
+    "modules": [],
+    "entrypoints": {
+        "main": {
+            "name": "main",
+            "chunks": [
+                792
+            ],
+            "assets": [],
+            "filteredAssets": 0,
+            "assetsSize": 0,
+            "auxiliaryAssets": [],
+            "filteredAuxiliaryAssets": 0,
+            "auxiliaryAssetsSize": 0,
+            "children": {},
+            "childAssets": {},
+            "isOverSizeLimit": false
+        }
+    },
+    "namedChunkGroups": {
+        "main": {
+            "name": "main",
+            "chunks": [
+                792
+            ],
+            "assets": [],
+            "filteredAssets": 0,
+            "assetsSize": 0,
+            "auxiliaryAssets": [],
+            "filteredAuxiliaryAssets": 0,
+            "auxiliaryAssetsSize": 0,
+            "children": {},
+            "childAssets": {},
+            "isOverSizeLimit": false
+        }
+    },
+    "errors": [
+        {
+            "loc": "main",
+            "message": "Module not found: Error: Can't resolve './src' in '/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop'",
+            "details": "resolve './src' in '/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop'\n  using description file: /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop/package.json (relative path: .)\n    Field 'browser' doesn't contain a valid alias configuration\n    using description file: /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop/package.json (relative path: ./src)\n      no extension\n        Field 'browser' doesn't contain a valid alias configuration\n        /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop/src doesn't exist\n      .js\n        Field 'browser' doesn't contain a valid alias configuration\n        /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop/src.js doesn't exist\n      .json\n        Field 'browser' doesn't contain a valid alias configuration\n        /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop/src.json doesn't exist\n      .wasm\n        Field 'browser' doesn't contain a valid alias configuration\n        /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop/src.wasm doesn't exist\n      as directory\n        /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop/src doesn't exist",
+            "stack": "ModuleNotFoundError: Module not found: Error: Can't resolve './src' in '/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/packages/shop'\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/Compilation.js:2065:28\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/NormalModuleFactory.js:1028:13\n    at eval (eval at create (/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:10:1)\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/NormalModuleFactory.js:429:22\n    at eval (eval at create (/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:9:1)\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/NormalModuleFactory.js:614:22\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/NormalModuleFactory.js:180:10\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/NormalModuleFactory.js:884:25\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/NormalModuleFactory.js:1113:8\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/NormalModuleFactory.js:1242:5"
+        }
+    ],
+    "errorsCount": 1,
+    "warnings": [
+        {
+            "message": "configuration\nThe 'mode' option has not been set, webpack will fallback to 'production' for this value.\nSet 'mode' option to 'development' or 'production' to enable defaults for each environment.\nYou can also set it to 'none' to disable any default behavior. Learn more: https://webpack.js.org/configuration/mode/",
+            "stack": "NoModeWarning: configuration\nThe 'mode' option has not been set, webpack will fallback to 'production' for this value.\nSet 'mode' option to 'development' or 'production' to enable defaults for each environment.\nYou can also set it to 'none' to disable any default behavior. Learn more: https://webpack.js.org/configuration/mode/\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/WarnNoModeSetPlugin.js:22:30\n    at Hook.eval [as call] (eval at create (/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/tapable/lib/HookCodeFactory.js:19:10), <anonymous>:17:1)\n    at Hook.CALL_DELEGATE [as _call] (/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/tapable/lib/Hook.js:16:14)\n    at Compiler.newCompilation (/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/Compiler.js:1304:30)\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/Compiler.js:1348:29\n    at Hook.eval [as callAsync] (eval at create (/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/tapable/lib/HookCodeFactory.js:31:10), <anonymous>:6:1)\n    at Hook.CALL_ASYNC_DELEGATE [as _callAsync] (/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/tapable/lib/Hook.js:21:14)\n    at Compiler.compile (/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/Compiler.js:1343:28)\n    at /Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/Compiler.js:616:12\n    at Compiler.readRecords (/Users/ruilu/Desktop/code/frontend-collections/study-demo-collections/qiankun-demo/node_modules/webpack/lib/Compiler.js:1141:4)"
+        }
+    ],
+    "warningsCount": 1,
+    "children": []
+}
