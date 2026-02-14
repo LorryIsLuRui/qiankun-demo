@@ -13,11 +13,6 @@ window.main_loaded = false;
 // 子应用挂载后执行
 window.shop_loaded = true;
 
-setTimeout(() => {
-  console.log('子应用内 shop_loaded:', window.shop_loaded); // 预期：true（子应用自己写入的）
-  console.log('子应用内 main_loaded:', window.main_loaded); // 代理沙箱下：false（仅子应用代理层修改）
-  console.log('子应用访问顶层 main_loaded:', window.top.main_loaded); // 预期：true（主应用真实值）
-}, 3000);
 
 const ShopApp = ({ qiankunProps }) => {
     // 使用共享 store 中的商品状态
